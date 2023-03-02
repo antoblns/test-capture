@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import "./App.css";
-async function* listenWs(websocket) {
-    // websocket.onmessage = async (event) => {
-    //     yield JSON.parse(await event.data.text())
-    //   };
-}
+
 function useCapture() {
     const [count, setCount] = useState(0);
     useEffect(() => {
+        // vite dev makes it two appearancies here i.e. 2 connections. Use yarn build yarn preview.
         const websocket = new WebSocket("ws://localhost:8765/ws");
         websocket.onmessage = async (event) => {
             setCount((count) => count + 1);
@@ -19,6 +16,7 @@ function useCapture() {
 }
 function Capture() {
     const count = useCapture();
+    // Getting new image can be done in 1000 ways incl. binary over ws. 
     return <img src={`http://localhost:8765/image?q=${count}`} width={500} />;
 }
 function App() {

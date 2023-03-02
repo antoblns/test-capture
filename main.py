@@ -17,12 +17,8 @@ ConnectedList = set[WebSocket]
 
 connected: ConnectedList = set()
 
-
 def get_ws_clients():
     return connected
-# tasks = set()
-
-
 #
 # Sync webcam shooting a new picture and sending it to clients. Replacement for an event bus.
 #
@@ -31,20 +27,15 @@ number_event = asyncio.Event()
 #
 # Internal Data source
 #
-
-
 class Store():
     value = 1
     status = 'ok'
     filename = './capture.jpg'
 
-
 store = Store()
-
 
 def get_store() -> Store:
     return store
-
 
 #
 # Create a VideoCapture object to capture video from the default camera
@@ -60,7 +51,7 @@ async def broadcast_status(store: Store, connected_clients: ConnectedList, sync_
     Task for broadcasting messages over ws.
 
     In case of generator:
-    
+
     capture_gen = generate_capture()
     for (status,) in capture_gen:
         message = ...
@@ -72,12 +63,12 @@ async def broadcast_status(store: Store, connected_clients: ConnectedList, sync_
         })
         if len(connected_clients) > 0:
             # websockets.broadcast(connected, message)
+
+            # We can send image binary or something else
             [await ws.send_text(message) for ws in connected_clients]
         sync_event.clear()
 
 # We can have manager object instead
-
-
 async def register(websocket):
     await websocket.accept()
     connected.add(websocket)
@@ -132,9 +123,11 @@ async def generate_capture(store: Store, cap: cv2.VideoCapture, sync_event: asyn
         # Capture a single frame from the camera
         ret, frame = cap.read()
         if not ret:
+            # there is no logic for this edge case yet so we continue after this
             store.status="not ok"
             ### yield (False, CaptureException)
             raise CaptureException
+        
         cv2.imwrite(store.filename, put_text(frame))
         ### yield (True,)
         sync_event.set()
